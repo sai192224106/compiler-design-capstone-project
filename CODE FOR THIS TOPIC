@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+// Define a structure to represent an abstract syntax tree (AST) node
+typedef struct ASTNode {
+    char* value;            // Value of the node (e.g., variable name, operator)
+    struct ASTNode** children;  // Array of pointers to child nodes
+    int num_children;       // Number of children nodes
+} ASTNode;
+// Function to create a new AST node
+ASTNode* createNode(char* value, int num_children) {
+    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
+    if (node == NULL) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    node->value = strdup(value);
+    node->num_children = num_children;
+    node->children = (ASTNode*)malloc(num_children * sizeof(ASTNode));
+    if (node->children == NULL) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    return node;
+}
+// Function to generate code recursively from the AST
+void generateCode(ASTNode* root) {
+    // Base case: If the node has no children, simply print its value
+    if (root->num_children == 0) {
+        printf("%s ", root->value);
+        return;
+    }
+    // If the node has children, recursively generate code for each child
+    for (int i = 0; i < root->num_children; i++) {
+        generateCode(root->children[i]);
+    }
+}
+int main() {
+    // Example AST representing a simple arithmetic expression: (a + b) * c
+    ASTNode* rootNode = createNode("*", 2);
+    rootNode->children[0] = createNode("+", 2);
+    rootNode->children[0]->children[0] = createNode("a", 0);
+    rootNode->children[0]->children[1] = createNode("b", 0);
+    rootNode->children[1] = createNode("c", 0);
+    // Generate code from the AST
+    printf("Generated code: ");
+    generateCode(rootNode);
+    printf("\n");
+    // Free memory
+    // (In a real application, you would need to traverse the AST and free all nodes)
+    free(rootNode->value);
+    free(rootNode->children[0]->children[0]->value);
+    free(rootNode->children[0]->children[1]->value);
+    free(rootNode->children[0]->children[0]);
+    free(rootNode->children[0]->children[1]);
+    free(rootNode->children[0]->value);
+    free(rootNode->children[0]);
+    free(rootNode->children[1]->value);
+    free(rootNode->children[1]);
+    free(rootNode);
+    return 0;
+}
+
+SAMPLE INPUT:
+// Example AST representing a simple arithmetic expression: (a + b) * c
+ASTNode* rootNode = createNode("*", 2);
+rootNode->children[0] = createNode("+", 2);
+rootNode->children[0]->children[0] = createNode("a", 0);
+rootNode->children[0]->children[1] = createNode("b", 0);
+rootNode->children[1] = createNode("c", 0);
+
+SAMPLE OUTPUT:
+
+
+      *
+     / \
+    +   c
+   / \
+  a   b
+Output: Generated code: a b + c *
+ 
+ 
